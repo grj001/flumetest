@@ -5,8 +5,6 @@ agent.sources.avrosrc.bind=192.168.197.131
 agent.sources.avrosrc.port=4142
 
 
-
-
 这里 flume1,flume2在一台机器上
 
 数据-->flume1-->flume2-->hbase
@@ -17,48 +15,11 @@ flume1,flume2配置：
 
 --------------- parallel_flume1.conf -------------------------------
 
-agent.sources=baksrc
-agent.channels=memoryChannel
-agent.sinks=remotesink
-
-agent.sources.baksrc.type=exec
-agent.sources.baksrc.command=tail -F /grj/test/test.txt
-agent.sources.baksrc.checkperiodic=1000
-agent.sources.baksrc.channels=memoryChannel
-
-agent.channels.memoryChannel.type=memory
-#以秒为单位添加或删除事件。
-agent.channels.memoryChannel.keep-alive=30
-agent.channels.memoryChannel.capacity=10000
-agent.channels.memoryChannel.transactionCapacity=10000
-
-agent.sinks.remotesink.type=avro
-agent.sinks.remotesink.hostname=192.168.197.131
-agent.sinks.remotesink.port=4142
-agent.sinks.remotesink.channel=memoryChannel
 
 
 --------------- parallel_flume2.conf -------------------------------
-agent.sources=avrosrc
-agent.channels=memoryChannel
-agent.sinks=fileSink
 
-agent.sources.avrosrc.type=avro
-agent.sources.avrosrc.bind=192.168.197.131
-agent.sources.avrosrc.port=4142
-agent.sources.avrosrc.channels=memoryChannel
 
-agent.channels.memoryChannel.type=memory
-agent.channels.memoryChannel.keep-alive=30
-agent.channels.memoryChannel.capacity=10000
-agent.channels.memoryChannel.transactionCapacity=10000
-
-agent.sinks.fileSink.type=hbase
-agent.sinks.fileSink.table=testflume
-agent.sinks.fileSink.columnFamily=cf
-agent.sinks.fileSink.column=charges
-agent.sinks.fileSink.serializer=org.apache.flume.sink.hbase.RegexHbaseEventSerializer
-agent.sinks.fileSink.channel=memoryChannel
 
 
 这里配置的是  机器上启动两个进程
@@ -69,14 +30,17 @@ flume-ng agent --conf conf --conf-file conf/parallel_flume2.conf --name agent -D
 写一个脚本往/grj/test/data.txt里追加东西
 test.sh:
 
-for i in {1..100000};
+#!/bin/bash
+for i in {1..100};
 do
-    echo "test flume to Hbase $i">>
-            /grj/test/data.txt;
+    echo "test flume to Hbase $i">> /grj/test/test.txt;
     sleep 0.1;
 done
 
-运行上面的脚本，这样每隔0.1秒往data.txt里追加内容，并变化的内容发送到parallel_flume1.conf上
+运行上面的脚本，这样每隔0.1秒往test.txt里追加内容，并变化的内容发送到parallel_flume1.conf上
 ，然后该flume将接受到数据查到Hbase表的cf:charges列中
 
+运行命令
+flume-ng agent -c . -f /grj/flume/parallel/parallel_flume1.conf -n agent -Dflume.root.logger=INFO,console
+flume-ng agent -c . -f /grj/flume/parallel/parallel_flume2.conf -n agent1 -Dflume.root.logger=INFO,console
 

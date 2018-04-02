@@ -1,4 +1,4 @@
-package com.grj.flumedemo.flumeclient;
+package com.grj.flumedemo.flumeclient.failover;
 
 import java.nio.charset.Charset;
 import java.util.Properties;
