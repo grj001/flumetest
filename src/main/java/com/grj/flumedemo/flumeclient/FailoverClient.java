@@ -12,9 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * flume 的 fileover client
- * 一个IP192.168.197.131
- * 两个端口 4141,4142 开启flume-ng
+ * flume 的 fileover client demo
+ * 一个IP 192.168.197.131
+ * 两个端口 4141,4142 
+ * 开启flume-ng
+ * 
+ * 配置文件
+ * /flumedemo/src/main/resources/avro_m_logger.conf
+ * /flumedemo/src/main/resources/avro_m_logger_4142.conf
  */
 public class FailoverClient {
 
